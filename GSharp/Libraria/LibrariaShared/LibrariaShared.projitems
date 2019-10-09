@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>99332a23-0360-472b-b311-7da8705486aa</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Libraria</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ArrayListExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enumerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventPool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FastNoise.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IEnumerableExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lib.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StreamExtensions.cs" />
+  </ItemGroup>
+</Project>
