@@ -22,20 +22,17 @@ now create a folder to house the dotnet core runtime files and your module.
 ```
 ./Module/
       Module.dll
-      win/
-        64/
+      win64/
           * 64 bit windows runtime files
-        32/
+      win32/
           * 32 bit windows runtime files
-      lin/
-        64/
+      lin64/
           * 64 bit windows runtime files
-        32/
+      lin32/
           * 32 bit windows runtime files (when they come out)
-      osx/
-        64/
+      osx64/
           * 64 bit Mac OSx runtime files (when it gets implemented)
-        32/
+      osx32/
           * 32 bit Mac OSx runtime files (when they come out)
 ```
 once you have set that up your good to go, make sure that your module path is relative to the srcds_run binarys or the hl2.exe binary and that the Module_ASMFilename is the same case as your modules name (*it is recomended to use all lowercase*).
