@@ -7,7 +7,7 @@ A Small cpp file that will start up the dotnet core runtime, load a cs dll, pars
 First create a dotnet core 3.0 project include the Module.cs and ModuleExportInterface.cs files in said project then, start writting code... do keep in mind a large amount of the files are for up comming things and have been ported directly from a work in progress repo called GSharp https://github.com/DuckyC/gm_dotnet/tree/master/GSharp.
 
 
-Open up the Module.cs file and fill in the top Directives:
+Open up the Module.cpp file and fill in the top Directives:
   LoaderFriendlyName, Module_ASMFilename, Module_Namespace_Class, Module_Path
 the other directives can be edited for more customization on where to find the dotnet core runtimes on different builds.
 Compile the Module.cs file on windos for both 32bit & 64bit then on/for linux 64 bit (osx is unsupported because i dont have a mac).
