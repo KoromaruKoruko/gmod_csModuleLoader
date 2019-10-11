@@ -36,3 +36,9 @@ now create a folder to house the dotnet core runtime files and your module.
           * 32 bit Mac OSx runtime files (when they come out)
 ```
 once you have set that up your good to go, make sure that your module path is relative to the srcds_run binarys or the hl2.exe binary and that the Module_ASMFilename is the same case as your modules name (*it is recomended to use all lowercase*).
+
+## Known Issues/Bugs/Changes-Needed
+Cleaner Way to Import SourceSDK Librarys or other Known Librarys with different paths/names.
+Better Lua Intergration, I Will be making it easier and clearer to wrap lua objects into c#
+Wiki And function summary's, will happen but not now
+Gmod Crashes when the module does, I will make an error reporting thing once i'v cleaned up the lua base/intergration
