@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f56f7147-3c0d-462e-89a7-71402f82bc1b</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>GMLoaded</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Common\CommandLineParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Common\CRC.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Common\InBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Common\OutBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\LZMA\LzmaBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\LZMA\LzmaDecoder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\LZMA\LzmaEncoder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\LZ\IMatchFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\LZ\LzBinTree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\LZ\LzInWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\LZ\LzOutWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\RangeCoder\RangeCoder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)7zip\ICoder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\InterfaceVersionAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\LuaLibraryLocationAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\ModuleNameAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\ReturnOrderAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\VTableOffsetAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\VTableSlotAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\AdvancedStack.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\Tree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GLua.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\IFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\IMath.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\IString.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LuaLibrary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\ArrayTypeMarshal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\BooleanTypeMarshal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\CFunctionTypeMarshal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\DelegateTypeMarshal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\ILuaTypeMarshal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\NumberTypeMarshal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\StringTypeMarshal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\Asmblr.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\ClassInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\HookHandle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\MachineCode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\NativeHandles\GMemProtect.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\NativeHandles\Linux\LinMemProtectHandle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\NativeHandles\Windows\WinMemProtectHandle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\VTables\Attributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\VTables\InteropHelp.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\JIT.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\ArrayListExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\ILuaBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\Lua_State.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\Misc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\Natives.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\NativeStructs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Native\Wrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\ClientConsole.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\CUtlVector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Interfaces\IAppSystem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Interfaces\IBaseFileSystem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Interfaces\IFileSystem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Interfaces\IGameConsole.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Interfaces\ILuaBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Interfaces\ILuaInterface.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Interfaces\INetworkStringTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Interfaces\INetworkStringTableContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\StringTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\StringTableEnumerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\StringTableUserDataEnumerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\StringUserDataTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\Tier0.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\ValveBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Source\VCR_t.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StaticInterfaceLoader.cs" />
+  </ItemGroup>
+</Project>

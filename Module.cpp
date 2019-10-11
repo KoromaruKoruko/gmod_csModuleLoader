@@ -6,13 +6,13 @@
 // NOTICE:
 //	this has not been tested on:
 //		osx		64 bit
-//  linux 32bit & osx 32bit are unsupported
+//  linux 32bit & osx 32bit are unsupported (dotnet core doesn't support them yet.)
 
-#define LoaderFriendlyName			"cpploader"						// The domain Friendly name, should be different if loading multiple modules from
-#define Module_ASMFilename			"SADmin"						// the files name of your assembly (do not include the file extension)
-#define Module_Namespace_Class		"SADmin.ModuleExportInterface"	// FullName of the Loader path
-#define Module_Path					"csModules/"					// where the c# Module folder is relative to hl2.exe or srcds_run
-#define ClrTreePath					"dnc/"							// where the CoreClr is (Relative to your loading program)
+#define LoaderFriendlyName			"cpploader"								// The domain Friendly name, should be different if loading multiple modules from
+#define Module_ASMFilename			"ModuleExample"							// the files name of your assembly (do not include the file extension)
+#define Module_Namespace_Class		"ModuleExample.ModuleExportInterface"	// FullName of the Loader path
+#define Module_Path					"csModules/"							// where the c# Module folder is relative to hl2.exe or srcds_run
+#define ClrTreePath					"dnc/"									// where the CoreClr is (Relative to your loading program)
 
 // these are the paths to the CoreCLR Runtime files (edit if you use a different structure)
 #define WinClr ClrTreePath "win"
@@ -33,6 +33,10 @@
 #include <Windows.h>
 #define FS_SEPERATOR "\\"
 #define PATH_DELIMITER ";"
+#ifndef MAX_PATH
+#define MAX_PATH 260
+#endif // !MAX_PATH
+
 #define OS 1
 #if defined (_M_X64)
 #define X64 true
@@ -198,7 +202,7 @@ void LoadDelegates()
 		(void**)&Invoke_Close);
 }
 
-int LoadModule()
+int LoadModule(lua_State* L)
 {
 	char ModuleFPath[MAX_PATH + 1];
 	char CoreClrPath[MAX_PATH + 1];
@@ -213,25 +217,19 @@ int LoadModule()
 
 		if (_coreCLR == NULL)
 		{
+			L->luabase->GetField(-10002, "print");
+			L->luabase->PushString("failed to import CoreClrDLL");
+			L->luabase->Call(1, 0);
 			perror("failed to import CoreClrDLL");
 			return -1;
 		}
 		coreclr_initialize_ptr initfptr = (coreclr_initialize_ptr)GetInterface(_coreCLR, "coreclr_initialize");
 		if (initfptr == NULL)
 		{
+			L->luabase->GetField(-10002, "print");
+			L->luabase->PushString("failed to generate init delegate ptr");
+			L->luabase->Call(1, 0);
 			perror("failed to generate init delegate ptr");
-			return -1;
-		}
-		coreclr_shutdown_ptr ShutdownCLR = (coreclr_shutdown_ptr)GetInterface(_coreCLR, "coreclr_shutdown");
-		if (ShutdownCLR)
-		{
-			perror("failed to generate shutdown delegate ptr");
-			return -1;
-		}
-		CreateDelegate = (coreclr_create_delegate_ptr)GetInterface(_coreCLR, "coreclr_create_delegate");
-		if (CreateDelegate == NULL)
-		{
-			perror("Failed to Get CreateDelegate Delegate Pointer");
 			return -1;
 		}
 
@@ -268,7 +266,20 @@ int LoadModule()
 			&_domainId)                             // AppDomain ID (out)
 			!= 0)
 		{
+			L->luabase->GetField(-10002, "print");
+			L->luabase->PushString("Failed to create runtime enviroment");
+			L->luabase->Call(1, 0);
 			perror("Failed to create runtime enviroment");
+			return -1;
+		}
+
+		CreateDelegate = (coreclr_create_delegate_ptr)GetInterface(_coreCLR, "coreclr_create_delegate");
+		if (CreateDelegate == NULL)
+		{
+			L->luabase->GetField(-10002, "print");
+			L->luabase->PushString("Failed to Get CreateDelegate Delegate Pointer");
+			L->luabase->Call(1, 0);
+			perror("Failed to Get CreateDelegate Delegate Pointer");
 			return -1;
 		}
 
@@ -279,10 +290,13 @@ int LoadModule()
 			Module_Namespace_Class,
 			"Define",
 			(void**)&Define);
+		L->luabase->GetField(-10002, "print");
+		L->luabase->PushString("Calling Define");
+		L->luabase->Call(1, 0);
 #if defined (X64)
 		Define(true, OS);
 #else
-		Define(false, OS),
+		Define(false, OS);
 #endif
 	}
 
@@ -293,7 +307,7 @@ int LoadModule()
 
 DLL_EXPORT int gmod13_open(lua_State* L)
 {
-	if (LoadModule() != -1)
+	if (LoadModule(L) != -1)
 		return Invoke_Open((csptr)L);
 	else
 		return -1;
