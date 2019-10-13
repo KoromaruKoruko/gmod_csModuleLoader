@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GMLoaded
+namespace GMLoaded.Lua.LibraryWrappers
 {
     public class Hooks : IDisposable
     {
@@ -15,7 +15,7 @@ namespace GMLoaded
         public Hooks(GLua GLua)
         {
             this.LuaHandle = GLua;
-            this.LuaHandle.Lock();
+            Boolean B = this.LuaHandle.Lock();
 
             this.LuaHandle.GetGlobal("hook");
             {
@@ -40,12 +40,17 @@ namespace GMLoaded
             }
             this.LuaHandle.Pop(2);
 
-            this.LuaHandle.UnLock();
+            if (B)
+                this.LuaHandle.UnLock();
+
+            this.LuaHandle.OnClose += this.LuaHandle_OnClose;
         }
+
+        private void LuaHandle_OnClose(GLua GLua) => this.Dispose();
 
         public void Call(String Hook, Int32 GamemodeTablePtr, params Object[] Args)
         {
-            this.LuaHandle.Lock();
+            Boolean B = this.LuaHandle.Lock();
 
             this.LuaHandle.ReferencePush(this.Hook_Call);
             this.LuaHandle.LuaBase.PushString(Hook);
@@ -56,7 +61,8 @@ namespace GMLoaded
 
             this.LuaHandle.Call(Args.Length + 2, 0);
 
-            this.LuaHandle.UnLock();
+            if (B)
+                this.LuaHandle.UnLock();
         }
 
         public Object[] Call(Int32 ReturnCount, String Hook, Int32 GamemodeTablePtr, params Object[] Args)
@@ -64,7 +70,7 @@ namespace GMLoaded
             if (ReturnCount > 6 || ReturnCount < 0)
                 throw new ArgumentOutOfRangeException("ReturnCount", "Return Count is between 0-6");
 
-            this.LuaHandle.Lock();
+            Boolean B = this.LuaHandle.Lock();
 
             this.LuaHandle.ReferencePush(this.Hook_Call);
             this.LuaHandle.LuaBase.PushString(Hook);
@@ -80,7 +86,75 @@ namespace GMLoaded
             for (Int32 x = 0; x < ReturnCount; x++)
                 Ret[x] = this.LuaHandle.PopGet();
 
-            this.LuaHandle.UnLock();
+            if (B)
+                this.LuaHandle.UnLock();
+
+            return Ret;
+        }
+
+        public ITableBase GetTable()
+        {
+            Boolean B = this.LuaHandle.Lock();
+
+            this.LuaHandle.ReferencePush(this.Hook_GetTable);
+            this.LuaHandle.Call(0, 1);
+            ITableBase Table = new ITableBase(this.LuaHandle, -1);
+            this.LuaHandle.Pop();
+
+            if (B)
+                this.LuaHandle.UnLock();
+
+            return Table;
+        }
+
+        public void Remove(String Hook, Object Identifier)
+        {
+            Boolean B = this.LuaHandle.Lock();
+
+            this.LuaHandle.ReferencePush(this.Hook_Remove);
+            this.LuaHandle.LuaBase.PushString(Hook, (UInt32)Hook.Length);
+            this.LuaHandle.Push(Identifier, Identifier.GetType());
+            this.LuaHandle.Call(2, 0);
+
+            if (B)
+                this.LuaHandle.UnLock();
+        }
+
+        public void Run(String Hook, params Object[] Args)
+        {
+            Boolean B = this.LuaHandle.Lock();
+
+            this.LuaHandle.ReferencePush(this.Hook_Run);
+            this.LuaHandle.LuaBase.PushString(Hook);
+
+            foreach (Object A in Args)
+                this.LuaHandle.Push(A, A.GetType());
+
+            this.LuaHandle.Call(Args.Length + 1, 0);
+
+            if (B)
+                this.LuaHandle.UnLock();
+        }
+
+        public Object[] Run(Int32 ReturnCount, String Hook, params Object[] Args)
+        {
+            Boolean B = this.LuaHandle.Lock();
+
+            this.LuaHandle.ReferencePush(this.Hook_Run);
+            this.LuaHandle.LuaBase.PushString(Hook);
+
+            foreach (Object A in Args)
+                this.LuaHandle.Push(A, A.GetType());
+
+            this.LuaHandle.Call(Args.Length + 1, ReturnCount);
+
+            Object[] Ret = new Object[ReturnCount];
+
+            for (Int32 x = 0; x < ReturnCount; x++)
+                Ret[x] = this.LuaHandle.PopGet();
+
+            if (B)
+                this.LuaHandle.UnLock();
 
             return Ret;
         }
@@ -92,6 +166,7 @@ namespace GMLoaded
             this.LuaHandle.ReferenceFree(this.Hook_GetTable);
             this.LuaHandle.ReferenceFree(this.Hook_Remove);
             this.LuaHandle.ReferenceFree(this.Hook_Run);
+            this.LuaHandle.OnClose -= this.LuaHandle_OnClose;
         }
     }
 }

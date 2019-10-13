@@ -8,6 +8,7 @@ namespace GMLoaded.Lua.TypeMarshals
     public interface IGenericTableTypeMarshal<T> : ILuaTypeMarshal
     {
         T GetT(GLua GLua, Int32 StackPos);
+
         void Push(GLua GLua, T Obj);
     }
 
@@ -35,7 +36,7 @@ namespace GMLoaded.Lua.TypeMarshals
                 Type Int32Type = typeof(Int32);
 
                 // verify ReturnType Constructor to be valid
-                ConstructorInfo ReturnType_Constructor = ReturnType.GetConstructor(BindingFlags.Public, null, new Type[] { GluaType, Int32Type }, null);
+                ConstructorInfo ReturnType_Constructor = ReturnType.GetConstructor(new Type[] { GluaType, Int32Type });
 
                 if (ReturnType_Constructor == null)
                     throw new ArgumentException("Generic Type does not contain valid ITableBase Constructor  new T(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)", "Generic<T>");
@@ -47,6 +48,8 @@ namespace GMLoaded.Lua.TypeMarshals
                 }
 
                 Type Container = typeof(IGenericTableTypeMarshal<T>);
+                Type ContainerBase = typeof(ILuaTypeMarshal);
+
                 // Create Type to build the marshler
                 TypeBuilder builder;
                 {
@@ -63,20 +66,18 @@ namespace GMLoaded.Lua.TypeMarshals
                 {
                     MethodBuilder GetT = builder.DefineMethod("GetT", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, CallingConventions.HasThis, ReturnType, new[] { GluaType, Int32Type });
 
-                    builder.DefineMethodOverride(GetT, Container.GetMethod("GetT"));
-
                     ILGenerator IL = GetT.GetILGenerator();
                     IL.Emit(OpCodes.Ldarg_1);
                     IL.Emit(OpCodes.Ldarg_2);
                     IL.Emit(OpCodes.Newobj, ReturnType_Constructor);
                     IL.Emit(OpCodes.Ret);
+
+                    builder.DefineMethodOverride(GetT, Container.GetMethod("GetT"));
                 }
 
                 //Object Get(GLua GLua, Int32 stackPos = -1) => new T(arg1, arg2) as Object;
                 {
                     MethodBuilder Get = builder.DefineMethod("Get", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, CallingConventions.HasThis, ObjectType, new[] { GluaType, Int32Type });
-
-                    builder.DefineMethodOverride(Get, Container.GetMethod("Get"));
 
                     ILGenerator IL = Get.GetILGenerator();
                     IL.Emit(OpCodes.Ldarg_1);
@@ -84,29 +85,30 @@ namespace GMLoaded.Lua.TypeMarshals
                     IL.Emit(OpCodes.Newobj, ReturnType_Constructor);
                     IL.Emit(OpCodes.Box);
                     IL.Emit(OpCodes.Ret);
+
+                    builder.DefineMethodOverride(Get, ContainerBase.GetMethod("Get"));
                 }
 
-                ConstructorInfo InvalidOperationExceptionType_Constructor = typeof(InvalidOperationException).GetConstructor(BindingFlags.Public, null, new[] { typeof(String) }, null);
-                FieldInfo ReturnType_LuaHandle = ReturnType.GetField("LuaHandle");
-                FieldInfo ReturnType_Referance = ReturnType.GetField("Refrance");
-                MethodInfo GLua_ReferancePush = GluaType.GetMethod("ReferancePush", BindingFlags.Public, null, new[] { Int32Type }, null);
+                ConstructorInfo InvalidOperationExceptionType_Constructor = typeof(InvalidOperationException).GetConstructor(new[] { typeof(String) });
+                Type ReturnTypeBase = typeof(ITableBase);
+                MethodInfo ReturnTypeBase_GetLuaHandle = ReturnTypeBase.GetProperty("LuaHandle").GetMethod;
+                MethodInfo ReturnTypeBase_GetReferance = ReturnTypeBase.GetProperty("Referance").GetMethod;
+                MethodInfo GLua_ReferancePush = GluaType.GetMethod("ReferencePush", new[] { Int32Type });
 
                 //void Push(GLua GLua, T obj)
                 //if (GLua != obj.LuaHandle)
                 //    throw new InvalidOperationException("You cant transfer tables between LuaStates");
-                //GLua.ReferencePush(Proxy.Refrance);
+                //GLua.ReferencePush(obj.Refrance);
                 {
                     MethodBuilder Push = builder.DefineMethod("Push", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, CallingConventions.HasThis, VoidType, new[] { GluaType, ReturnType });
 
-                    builder.DefineMethodOverride(Push, Container.GetMethod("Push", new[] { GluaType, ReturnType }));
-
                     ILGenerator IL = Push.GetILGenerator();
-                    IL.Emit(OpCodes.Ldarg_2);                                   // push obj
-                    IL.Emit(OpCodes.Ldfld, ReturnType_LuaHandle);               // push obj::LuaHandle
-                    IL.Emit(OpCodes.Ldarg_1);                                   // push GLua
-                    IL.Emit(OpCodes.Ceq);                                       // compair GLua with obj::LuaHandle
+                    IL.Emit(OpCodes.Ldarg_2);                                    // push obj
+                    IL.EmitCall(OpCodes.Call, ReturnTypeBase_GetLuaHandle, null);// push obj::LuaHandle:Get
+                    IL.Emit(OpCodes.Ldarg_1);                                    // push GLua
+                    IL.Emit(OpCodes.Ceq);                                        // compair GLua with obj::LuaHandle
 
-                    Label Lb = new Label();
+                    Label Lb = IL.DefineLabel();
                     IL.Emit(OpCodes.Brfalse, Lb);                               // if false throw new InvalidOperationException("You cant transfer tables between LuaStates")
 
                     IL.Emit(OpCodes.Ldstr, "You cant transfer tables between LuaStates");
@@ -116,10 +118,12 @@ namespace GMLoaded.Lua.TypeMarshals
                     IL.MarkLabel(Lb);                                           // if true GLua.ReferancePush(obj::Referance)
                     IL.Emit(OpCodes.Ldarg_1);
                     IL.Emit(OpCodes.Ldarg_2);
-                    IL.Emit(OpCodes.Ldfld, ReturnType_Referance);
+                    IL.EmitCall(OpCodes.Call, ReturnTypeBase_GetReferance, null);
                     IL.EmitCall(OpCodes.Call, GLua_ReferancePush, null);
 
                     IL.Emit(OpCodes.Ret);
+
+                    builder.DefineMethodOverride(Push, Container.GetMethod("Push"));
                 }
 
                 //void Push(GLua GLua, Object obj)
@@ -131,8 +135,6 @@ namespace GMLoaded.Lua.TypeMarshals
                 {
                     MethodBuilder Push = builder.DefineMethod("Push", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, CallingConventions.HasThis, VoidType, new[] { GluaType, ObjectType });
 
-                    builder.DefineMethodOverride(Push, Container.GetMethod("Push", new[] { GluaType, ObjectType }));
-
                     ILGenerator IL = Push.GetILGenerator();
 
                     IL.Emit(OpCodes.Ldarg_2);
@@ -141,17 +143,17 @@ namespace GMLoaded.Lua.TypeMarshals
                     IL.Emit(OpCodes.Stloc_0);
                     IL.Emit(OpCodes.Ldloc_0);
 
-                    Label Lb = new Label();
+                    Label Lb = IL.DefineLabel();
                     IL.Emit(OpCodes.Brtrue, Lb);
                     IL.ThrowException(typeof(InvalidCastException)); // incase the initial case failed
 
                     IL.MarkLabel(Lb);
-                    IL.Emit(OpCodes.Ldloc_0);                                   // push obj
-                    IL.Emit(OpCodes.Ldfld, ReturnType_LuaHandle);               // push obj::LuaHandle
-                    IL.Emit(OpCodes.Ldarg_1);                                   // push GLua
-                    IL.Emit(OpCodes.Ceq);                                       // compair GLua with obj::LuaHandle
+                    IL.Emit(OpCodes.Ldloc_0);                                    // push obj
+                    IL.EmitCall(OpCodes.Call, ReturnTypeBase_GetLuaHandle, null);// push obj::LuaHandle:Get
+                    IL.Emit(OpCodes.Ldarg_1);                                    // push GLua
+                    IL.Emit(OpCodes.Ceq);                                        // compair GLua with obj::LuaHandle
 
-                    Lb = new Label();
+                    Lb = IL.DefineLabel();
                     IL.Emit(OpCodes.Brfalse, Lb);                               // if false throw new InvalidOperationException("You cant transfer tables between LuaStates")
 
                     IL.Emit(OpCodes.Ldstr, "You cant transfer tables between LuaStates");
@@ -159,12 +161,15 @@ namespace GMLoaded.Lua.TypeMarshals
                     IL.Emit(OpCodes.Throw);
 
                     IL.MarkLabel(Lb);                                           // if true GLua.ReferancePush(obj::Referance)
+
                     IL.Emit(OpCodes.Ldarg_1);
                     IL.Emit(OpCodes.Ldloc_0);
-                    IL.Emit(OpCodes.Ldfld, ReturnType_Referance);
+                    IL.EmitCall(OpCodes.Call, ReturnTypeBase_GetReferance, null);
                     IL.EmitCall(OpCodes.Call, GLua_ReferancePush, null);
 
                     IL.Emit(OpCodes.Ret);
+
+                    builder.DefineMethodOverride(Push, ContainerBase.GetMethod("Push"));
                 }
 
                 return Activator.CreateInstance(builder.CreateType()) as IGenericTableTypeMarshal<T>;

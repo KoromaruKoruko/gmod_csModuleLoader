@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-
+using System;
 using GMLoaded;
 
 namespace ModuleExample
@@ -11,11 +7,17 @@ namespace ModuleExample
     {
         public static Int32 Close(GLua LUA)
         {
+            LUA.GetGlobal("print");
+            LUA.Push("Hello! Module is being unloaded");
+            LUA.Call(1, 0);
             return 0;
         }
 
         public static Int32 Open(GLua LUA)
         {
+            LUA.GetGlobal("print");
+            LUA.Push("Hello! Module has been loaded");
+            LUA.Call(1, 0);
             return 0;
         }
     }

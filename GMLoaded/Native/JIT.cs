@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
+
 namespace GMLoaded.Native
 {
     public static class JIT
@@ -85,15 +86,6 @@ namespace GMLoaded.Native
 
         public static Type CreateWrapper<T>(out NativeClassInfo NativeCInfo) where T : class
         {
-            switch (Natives.SystemType)
-            {
-                case System.Windows: break;
-
-                default:
-                case System.OSx:
-                case System.Linux: throw new NotImplementedException();
-            }
-
             NativeCInfo = null;
 
             String WrapperName = typeof(T).Name + "_impl";

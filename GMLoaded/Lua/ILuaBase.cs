@@ -6,6 +6,7 @@ namespace GMLoaded.Lua
 {
     public interface ILuaBase
     {
+
         Int32 Top();
 
         /// <param name='iStackPos'></param>

@@ -6,13 +6,13 @@
 // NOTICE:
 //	this has not been tested on:
 //		osx		64 bit
-//  linux 32bit & osx 32bit are unsupported (dotnet core doesn't support them yet.)
+//  linux 32bit & osx 32bit are unsupported
 
 #define LoaderFriendlyName			"cpploader"								// The domain Friendly name, should be different if loading multiple modules from
 #define Module_ASMFilename			"ModuleExample"							// the files name of your assembly (do not include the file extension)
 #define Module_Namespace_Class		"ModuleExample.ModuleExportInterface"	// FullName of the Loader path
 #define Module_Path					"csModules/"							// where the c# Module folder is relative to hl2.exe or srcds_run
-#define ClrTreePath					"dnc/"									// where the CoreClr is (Relative to your loading program)
+#define ClrTreePath					"csModules/dnc/"						// where the CoreClr is (Relative to your loading program)
 
 // these are the paths to the CoreCLR Runtime files (edit if you use a different structure)
 #define WinClr ClrTreePath "win"
@@ -48,9 +48,10 @@
 
 typedef HMODULE LibPtr;
 
-#define GetFullPath(Path, Output) GetFullPathNameA(Path, MAX_PATH, Output, NULL);
-#define ImportDLL(Path) LoadLibraryExA(Path, NULL, 0);
+#define GetFullPath(Path, Output) GetFullPathNameA(Path, MAX_PATH, Output, NULL)
+#define ImportDLL(Path) LoadLibraryExA(Path, NULL, 0)
 #define GetInterface(CoreCLR, Name) GetProcAddress(CoreCLR, Name)
+#define CloseDLL(Ptr) FreeLibrary(Ptr)
 // search
 void BuildTpaList(const char* directory, const char* extension, std::string& tpaList)
 {
@@ -100,6 +101,7 @@ typedef void* LibPtr;
 #define GetFullPath(Path, Output) realpath(Path, Output);
 #define ImportDLL(Path) dlopen(Path, RTLD_NOW | RTLD_LOCAL);
 #define GetInterface(CoreCLR, Name) dlsym(CoreCLR, Name)
+#define CloseDLL(Ptr) dlclose(Ptr)
 
 //#include <cstring>
 
@@ -160,10 +162,6 @@ CORECLR_HOSTING_API(coreclr_initialize,
 	void** hostHandle,
 	unsigned int* domainId);
 
-CORECLR_HOSTING_API(coreclr_shutdown,
-	void* hostHandle,
-	unsigned int domainId);
-
 CORECLR_HOSTING_API(coreclr_create_delegate,
 	void* hostHandle,
 	unsigned int domainId,
@@ -186,7 +184,7 @@ LibPtr _coreCLR = NULL;
 void* _hostHandle;
 unsigned int _domainId;
 coreclr_create_delegate_ptr CreateDelegate = NULL;
-coreclr_shutdown_ptr ShutdownCLR = NULL;
+coreclr_initialize_ptr initfptr = NULL;
 
 void LoadDelegates()
 {
@@ -204,15 +202,15 @@ void LoadDelegates()
 
 int LoadModule(lua_State* L)
 {
-	char ModuleFPath[MAX_PATH + 1];
-	char CoreClrPath[MAX_PATH + 1];
-	char CoreClrDll[MAX_PATH + 1];
-	GetFullPath(MODULEPATH, ModuleFPath);
-	GetFullPath(CoreCLRPath, CoreClrPath);
-	GetFullPath(CoreCLRDLL, CoreClrDll);
-
 	if (_coreCLR == NULL)
 	{
+		char ModuleFPath[MAX_PATH + 1];
+		char CoreClrPath[MAX_PATH + 1];
+		char CoreClrDll[MAX_PATH + 1];
+		GetFullPath(MODULEPATH, ModuleFPath);
+		GetFullPath(CoreCLRPath, CoreClrPath);
+		GetFullPath(CoreCLRDLL, CoreClrDll);
+
 		_coreCLR = ImportDLL(CoreClrDll);
 
 		if (_coreCLR == NULL)
@@ -223,7 +221,7 @@ int LoadModule(lua_State* L)
 			perror("failed to import CoreClrDLL");
 			return -1;
 		}
-		coreclr_initialize_ptr initfptr = (coreclr_initialize_ptr)GetInterface(_coreCLR, "coreclr_initialize");
+		initfptr = (coreclr_initialize_ptr)GetInterface(_coreCLR, "coreclr_initialize");
 		if (initfptr == NULL)
 		{
 			L->luabase->GetField(-10002, "print");
@@ -232,7 +230,6 @@ int LoadModule(lua_State* L)
 			perror("failed to generate init delegate ptr");
 			return -1;
 		}
-
 		std::string TpaList; // Add Trusted Assemblies by Path searching
 		{
 			BuildTpaList(CoreClrPath, ".dll", TpaList);
@@ -274,6 +271,7 @@ int LoadModule(lua_State* L)
 		}
 
 		CreateDelegate = (coreclr_create_delegate_ptr)GetInterface(_coreCLR, "coreclr_create_delegate");
+
 		if (CreateDelegate == NULL)
 		{
 			L->luabase->GetField(-10002, "print");
@@ -282,7 +280,6 @@ int LoadModule(lua_State* L)
 			perror("Failed to Get CreateDelegate Delegate Pointer");
 			return -1;
 		}
-
 		// we dont need a 32 and 64 bit version of this, because it works with single bits only
 		d_Define Define;
 		CreateDelegate(_hostHandle, _domainId,
@@ -290,20 +287,16 @@ int LoadModule(lua_State* L)
 			Module_Namespace_Class,
 			"Define",
 			(void**)&Define);
-		L->luabase->GetField(-10002, "print");
-		L->luabase->PushString("Calling Define");
-		L->luabase->Call(1, 0);
 #if defined (X64)
 		Define(true, OS);
 #else
 		Define(false, OS);
 #endif
+
+		LoadDelegates();
 	}
-
-	LoadDelegates();
-
 	return 0;
-}
+		}
 
 DLL_EXPORT int gmod13_open(lua_State* L)
 {
@@ -316,12 +309,7 @@ DLL_EXPORT int gmod13_open(lua_State* L)
 DLL_EXPORT int gmod13_close(lua_State* L)
 {
 	if (Invoke_Close != NULL)
-	{
-		int code = Invoke_Close((csptr)L);
-		ShutdownCLR(_hostHandle, _domainId);
-		return code;
-	}
-	if (ShutdownCLR != NULL)
-		ShutdownCLR(_hostHandle, _domainId);
-	return -1;
+		return Invoke_Close((csptr)L);
+	else
+		return -1;
 }

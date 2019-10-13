@@ -1,29 +1,67 @@
 ﻿using System;
+using GMLoaded.Lua.Smart;
+
 namespace GMLoaded.Lua
 {
     public class ITableBase : IDisposable
     {
-        public readonly Int32 Refrance;
-        public readonly GLua LuaHandle;
+        public readonly SmartLuaReferance SmartRef;
+
         public ITableBase(GLua LuaHandle, Int32 IStackPos)
         {
-            this.LuaHandle = LuaHandle;
-            this.LuaHandle.Lock();
+            Boolean B = LuaHandle.Lock();
 
-            this.LuaHandle.Push(IStackPos);
-            this.LuaHandle.ReferenceCreate();
+            if (IStackPos != -1)
+            {
+                LuaHandle.Push(IStackPos);
+                this.SmartRef = LuaHandle.CreateSmartReferance();
+                LuaHandle.Pop();
+            }
+            else
+                this.SmartRef = LuaHandle.CreateSmartReferance();
+
+            if (B)
+                LuaHandle.UnLock();
+        }
+
+        public ITableBase(SmartLuaReferance Ref)
+        {
+            this.SmartRef.Create();
+            this.SmartRef = Ref;
+        }
+
+        public GLua LuaHandle => this.SmartRef.Handle;
+        public Int32 Referance => this.SmartRef.Referance;
+
+        public void Dispose() => this.SmartRef.Free();
+
+        public Object GetField(String Field)
+        {
+            Boolean B = this.LuaHandle.Lock();
+
+            this.Push();
+            this.LuaHandle.GetField(-1, Field);
+            Object Ret = this.LuaHandle.Get();
+            this.LuaHandle.Pop(2);
+
+            if (B)
+                this.LuaHandle.UnLock();
+            return Ret;
+        }
+
+        public void Push() => this.LuaHandle.ReferencePush(this.Referance);
+
+        public void SetField(String Field, Object Obj)
+        {
+            Boolean B = this.LuaHandle.Lock();
+
+            this.Push();
+            this.LuaHandle.Push(Obj, Obj.GetType());
+            this.LuaHandle.SetField(-2, Field);
             this.LuaHandle.Pop();
 
-            this.LuaHandle.UnLock();
+            if (B)
+                this.LuaHandle.UnLock();
         }
-        public ITableBase(Int32 Refrance, GLua LuaHandle)
-        {
-            this.Refrance = Refrance;
-            this.LuaHandle = LuaHandle;
-        }
-
-        public void Push() => this.LuaHandle.ReferencePush(this.Refrance);
-
-        public void Dispose() => this.LuaHandle.ReferenceFree(this.Refrance);
     }
 }

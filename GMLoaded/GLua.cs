@@ -8,20 +8,34 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using GMLoaded.Lua.Smart;
+using GMLoaded.Lua.LibraryWrappers;
 
 namespace GMLoaded
 {
+    public delegate void Gluaclose(GLua GLua);
+
     public partial class GLua
     {
         #region Extended GLua (Mainly AsyncSupport and Library Wraping)
 
         private readonly ManualResetEvent mLock = new ManualResetEvent(false);
+
         private Thread tLock;
+
+        public event Gluaclose OnClose;
+
         public Boolean IsLocked => this.tLock != null;
+
+        public void Close()
+        {
+            OnClose?.Invoke(this);
+            Gluas.Remove(this);
+        }
 
         public unsafe Object Get(Int32 IStackPos = -1)
         {
-            this.Lock();
+            Boolean B = this.Lock();
 
             Object Ret = null;
 
@@ -30,7 +44,8 @@ namespace GMLoaded
             {
                 case -1:
                 case 0:
-                    this.UnLock();
+                    if (B)
+                        this.UnLock();
                     return null;
 
                 case 1:
@@ -38,7 +53,7 @@ namespace GMLoaded
                     break;
 
                 case 2:
-                case 7:
+                case 7: // need to make a userdata marshal
                     Ret = this.LuaBase.GetUserdata(IStackPos);
                     break;
 
@@ -209,12 +224,13 @@ namespace GMLoaded
                     throw new Exception("Unable to cast to base lua type, Unknown Type:" + T);
             }
 
-            this.UnLock();
+            if (B)
+                this.UnLock();
 
             return Ret;
         }
 
-        public void GetGlobal(String Name) => this.GetField(LUA_REGISTRYINDEX, Name);
+        public void GetGlobal(String Name) => this.GetField(LUA_GLOBALSINDEX, Name);
 
         #region Optimized Library Wrappers
 
@@ -223,6 +239,16 @@ namespace GMLoaded
         public Hooks GetHooks() => this._Hooks ?? (this._Hooks = new Hooks(this));
 
         #endregion Optimized Library Wrappers
+
+        #region Smart Lua Stack management
+
+        public SmartLuaReferance CreateSmartReferance()
+        {
+            Int32 Ref = this.LuaBase.ReferenceCreate();
+            return new SmartLuaReferance(this, Ref);
+        }
+
+        #endregion Smart Lua Stack management
 
         public Int32 GlobalRefrenceCreate(String Global)
         {
@@ -238,6 +264,12 @@ namespace GMLoaded
             return R;
         }
 
+        /// <summary>
+        /// this is to lock the Handler, this SHOULD be used for any multi-command operations on the stack.
+        /// this will not lock out direct access to the stack, this is so that single command operations can be done.
+        /// if this is called twice on the same thread it will parse through but the return will be false.
+        /// use the return to see if you should call unlock. <see langword="true"/> = Unlock, <see langword="false"/> = Dont Unlock.
+        /// </summary>
         public Boolean Lock()
         {
             Thread CT = Thread.CurrentThread;
@@ -257,12 +289,13 @@ namespace GMLoaded
 
         public Object PopGet()
         {
-            this.Lock();
+            Boolean B = this.Lock();
 
             Object O = this.Get();
             this.Pop();
 
-            this.UnLock();
+            if (B)
+                this.UnLock();
 
             return O;
         }

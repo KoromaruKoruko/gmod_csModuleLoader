@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using GMLoaded.Lua.Smart;
 
 namespace GMLoaded.Lua
 {
@@ -9,7 +8,9 @@ namespace GMLoaded.Lua
         public File(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {
         }
-
-        // TODO: add all Std Entity funcs here!
+        public File(SmartLuaReferance Ref) : base(Ref)
+        {
+        }
+        // TODO: add all Std File funcs here!
     }
 }

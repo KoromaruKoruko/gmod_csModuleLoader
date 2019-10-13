@@ -359,7 +359,6 @@ namespace GMLoaded.Native
         }
     }
 
-    // RTTI END ///////////////////////////////////////////
     public unsafe class NativeTypeInfo
     {
         public TypeDescriptor* TypeDesc;

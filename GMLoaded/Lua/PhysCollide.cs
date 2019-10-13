@@ -1,5 +1,6 @@
 ﻿using System;
 using GMLoaded.Lua.TypeMarshals;
+using GMLoaded.Lua.Smart;
 
 namespace GMLoaded.Lua
 {
@@ -12,14 +13,15 @@ namespace GMLoaded.Lua
     public class PhysCollide : ITableBase
     {
         public PhysCollide(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
-        {
-        }
+        { }
+        public PhysCollide(SmartLuaReferance SmartRef) : base(SmartRef)
+        { }
 
         public PhysCollideTraceBoxReturn TraceBox(Vector Origin, Angle Angles, Vector RayStart, Vector RayEnd, Vector RayMins, Vector RayMaxs)
         {
-            this.LuaHandle.Lock();
+            Boolean B = this.LuaHandle.Lock();
 
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "TraceBox");
             this.LuaHandle.Push(-2);
 
@@ -43,16 +45,17 @@ namespace GMLoaded.Lua
             };
             this.LuaHandle.Pop(4);
 
-            this.LuaHandle.UnLock();
+            if (B)
+                this.LuaHandle.UnLock();
 
             return Ret;
         }
 
         public Boolean IsValid()
         {
-            this.LuaHandle.Lock();
+            Boolean B = this.LuaHandle.Lock();
 
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
 
             this.LuaHandle.GetField(-1, "IsValid");
             this.LuaHandle.Push(-1);
@@ -62,21 +65,23 @@ namespace GMLoaded.Lua
 
             this.LuaHandle.Pop(2);
 
-            this.LuaHandle.UnLock();
+            if (B)
+                this.LuaHandle.UnLock();
 
             return Ret;
         }
 
         public void Destroy()
         {
-            this.LuaHandle.Lock();
+            Boolean B = this.LuaHandle.Lock();
 
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "Destroy");
             this.LuaHandle.LuaBase.Insert(-2);
             this.LuaHandle.Call(1, 0);
 
-            this.LuaHandle.UnLock();
+            if (B)
+                this.LuaHandle.UnLock();
 
             this.Dispose();
         }

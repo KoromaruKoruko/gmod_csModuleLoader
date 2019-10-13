@@ -11,7 +11,7 @@ namespace GMLoaded.Lua.TypeMarshals
                 throw new InvalidCastException();
             if (GLua != Proxy.LuaHandle)
                 throw new InvalidOperationException("You cant transfer tables between LuaStates");
-            GLua.ReferencePush(Proxy.Refrance);
+            GLua.ReferencePush(Proxy.Referance);
         }
 
         private TableTypeMarshal() { }

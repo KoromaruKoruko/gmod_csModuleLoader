@@ -12,7 +12,7 @@ namespace GMLoaded.Lua
         public void EndBlock()
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "EndBlock");
             this.LuaHandle.Insert(-2);
             this.LuaHandle.Call(1, 0);
@@ -22,7 +22,7 @@ namespace GMLoaded.Lua
         public void StartBlock(String Name)
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "StartBlock");
             this.LuaHandle.Insert(-2);
             this.LuaHandle.LuaBase.PushString(Name, (UInt32)Name.Length);
@@ -34,7 +34,7 @@ namespace GMLoaded.Lua
         public void WriteAngle(Angle Angle)
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "WriteAngle");
             this.LuaHandle.Insert(-2);
             AngleTypeMarshal.Create().Push(this.LuaHandle, Angle);
@@ -45,7 +45,7 @@ namespace GMLoaded.Lua
         public void WriteBool(Boolean Bool)
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "WriteBool");
             this.LuaHandle.Insert(-2);
             this.LuaHandle.LuaBase.PushBool(Bool);
@@ -56,7 +56,7 @@ namespace GMLoaded.Lua
         public void WriteEntity(Entity Ent)
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "WriteEntity");
             this.LuaHandle.Insert(-2);
             Ent.Push();
@@ -67,7 +67,7 @@ namespace GMLoaded.Lua
         public void WriteFloat(Double Float)
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "WriteFloat");
             this.LuaHandle.Insert(-2);
             this.LuaHandle.LuaBase.PushNumber(Float);
@@ -78,7 +78,7 @@ namespace GMLoaded.Lua
         public void WriteInt(Double Int)
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "WriteInt");
             this.LuaHandle.Insert(-2);
             this.LuaHandle.LuaBase.PushNumber(Int);
@@ -89,7 +89,7 @@ namespace GMLoaded.Lua
         public void WriteString(String String)
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "WriteString");
             this.LuaHandle.Insert(-2);
             this.LuaHandle.LuaBase.PushString(String, (UInt32)String.Length);
@@ -100,7 +100,7 @@ namespace GMLoaded.Lua
         public void WriteVector(Vector Vector)
         {
             Boolean B = this.LuaHandle.Lock();
-            this.LuaHandle.ReferencePush(this.Refrance);
+            this.LuaHandle.ReferencePush(this.Referance);
             this.LuaHandle.GetField(-1, "WriteVector");
             this.LuaHandle.Insert(-2);
             VectorTypeMarshal.Create().Push(this.LuaHandle, Vector);

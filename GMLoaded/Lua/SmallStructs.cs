@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace GMLoaded.Lua
 {
@@ -34,7 +32,7 @@ namespace GMLoaded.Lua
 
         public Color(GLua gLua, Int32 IStackPos)
         {
-            gLua.Lock();
+            Boolean B = gLua.Lock();
 
             gLua.GetField(IStackPos, "r");
             this.R = (Byte)gLua.LuaBase.GetNumber(-1);
@@ -46,12 +44,13 @@ namespace GMLoaded.Lua
             this.A = (Byte)gLua.LuaBase.GetNumber(-1);
             gLua.Pop(4);
 
-            gLua.UnLock();
+            if (B)
+                gLua.UnLock();
         }
 
         public void Push(GLua gLua)
         {
-            gLua.Lock();
+            Boolean B = gLua.Lock();
 
             gLua.LuaBase.CreateTable();
             gLua.LuaBase.PushNumber(this.R);
@@ -66,7 +65,8 @@ namespace GMLoaded.Lua
             gLua.LuaBase.CreateMetaTable("COLOR");
             gLua.LuaBase.SetMetaTable(-2);
 
-            gLua.UnLock();
+            if (B)
+                gLua.UnLock();
         }
 
         /// <summary></summary>

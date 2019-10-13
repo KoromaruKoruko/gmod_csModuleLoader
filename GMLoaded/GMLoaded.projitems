@@ -72,6 +72,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Lua\LibararyWrappers\IString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LuaLibrary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Lua\Native\lua_shared.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Lua\Smart\SmartLuaReferance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\AngleTypeMarshal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\ArrayTypeMarshal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Lua\TypeMarshals\BooleanTypeMarshal.cs" />
