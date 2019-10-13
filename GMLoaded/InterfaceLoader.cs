@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
-using System.IO;
 using GMLoaded.Native;
 using GMLoaded.Native.Classes;
 using GMLoaded.Lua;
@@ -102,26 +101,26 @@ namespace GMLoaded
             List<ManagedMethodInjectionHandle> Outp = new List<ManagedMethodInjectionHandle>();
             foreach (MethodInfo RMI in R.GetMethods())
             {
-				MethodInfo IMI = I.GetMethod(RMI.Name);
-				if (IMI != null)
-					if (RMI.ReturnType == IMI.ReturnType)
-					{
-						ParameterInfo[] RPI = RMI.GetParameters();
-						ParameterInfo[] IPI = IMI.GetParameters();
+                MethodInfo IMI = I.GetMethod(RMI.Name);
+                if (IMI != null)
+                    if (RMI.ReturnType == IMI.ReturnType)
+                    {
+                        ParameterInfo[] RPI = RMI.GetParameters();
+                        ParameterInfo[] IPI = IMI.GetParameters();
 
-						if (RPI.Length != IPI.Length)
-							continue;
-						Boolean Load = true;
-						for (Int32 x = 0; x < RPI.Length; x++)
-							if (RPI[x].ParameterType != IPI[x].ParameterType || RPI[x].IsOptional != IPI[x].IsOptional ||
-								RPI[x].IsOut != IPI[x].IsOut || RPI[x].IsIn != IPI[x].IsIn)
-							{
-								Load = false;
-								break;
-							}
-						if (Load)
-							Outp.Add(Inject(RMI, IMI));
-					}
+                        if (RPI.Length != IPI.Length)
+                            continue;
+                        Boolean Load = true;
+                        for (Int32 x = 0; x < RPI.Length; x++)
+                            if (RPI[x].ParameterType != IPI[x].ParameterType || RPI[x].IsOptional != IPI[x].IsOptional ||
+                                RPI[x].IsOut != IPI[x].IsOut || RPI[x].IsIn != IPI[x].IsIn)
+                            {
+                                Load = false;
+                                break;
+                            }
+                        if (Load)
+                            Outp.Add(Inject(RMI, IMI));
+                    }
             }
             return Outp.ToArray();
         }
@@ -166,19 +165,23 @@ namespace GMLoaded
             if (!(T.GetCustomAttribute(typeof(StaticInterfaceAttribute)) is StaticInterfaceAttribute SI))
                 throw new ArgumentException("Must be A Static Interface Class");
 
-            switch (Natives.SystemType)
+            if (!SI.Loaded)
             {
-                case System.Linux:
-                    Inject(T, SI.lin);
-                    break;
+                switch (Natives.SystemType)
+                {
+                    case System.Linux:
+                        Inject(T, SI.lin);
+                        break;
 
-                case System.Windows:
-                    Inject(T, SI.win);
-                    break;
+                    case System.Windows:
+                        Inject(T, SI.win);
+                        break;
 
-                case System.OSx:
-                    Inject(T, SI.osx);
-                    break;
+                    case System.OSx:
+                        Inject(T, SI.osx);
+                        break;
+                }
+                SI.Loaded = true;
             }
         }
 
@@ -246,7 +249,7 @@ namespace GMLoaded
         /// <typeparam name="T">VCR Hook Handler</typeparam>
         /// <param name="newDelegate">New VCR Hook Handler</param>
         /// <returns>Original or Old VCR Hook</returns>
-        public static T OverwriteVCRHook<T>(T newDelegate) where T : class => OverwriteVCRHook(LoadVariable<VCR_t>(Natives.Tier0Library, "g_pVCR"), newDelegate);
+        public static T OverwriteVCRHook<T>(T newDelegate) where T : class => OverwriteVCRHook(LoadVariable<VCR_t>(Natives.LibraryTier0Name, "g_pVCR"), newDelegate);
 
         public class ManagedMethodInjectionHandle : IDisposable
         {
@@ -275,6 +278,7 @@ namespace GMLoaded
         public readonly Type lin;
         public readonly Type osx;
         public readonly Type win;
+        public Boolean Loaded = false;
 
         public StaticInterfaceAttribute(Type win, Type lin, Type osx = null)
         {

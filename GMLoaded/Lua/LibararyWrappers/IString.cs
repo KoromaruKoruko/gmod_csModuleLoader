@@ -1,7 +1,9 @@
 using System.Runtime.InteropServices;
 using System;
-namespace GMLoaded.Lua
+namespace GMLoaded.Lua.LibraryWrappers
 {
+    // TODO Make an optimized version of this Library Loader
+
     /// <summary>
     ///
     /// <list type='bullet'>
@@ -11,7 +13,7 @@ namespace GMLoaded.Lua
     ///
     /// This category lists functions available in the String ''library''.
     /// </summary>
-    public interface IString
+    public interface LibString
     {
         /// <summary>
         /// Returns the given string's characters in their numeric ASCII representation.

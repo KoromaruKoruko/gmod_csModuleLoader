@@ -42,3 +42,5 @@ Cleaner Way to Import SourceSDK Librarys or other Known Librarys with different 
 Better Lua Intergration, I Will be making it easier and clearer to wrap lua objects into c#
 Wiki And function summary's, will happen but not now
 Gmod Crashes when the module does, I will make an error reporting thing once i'v cleaned up the lua base/intergration
+Need to fill in Object Wrappers.
+Need to fix pre-mature referance disposure, will make smart refrance handles for lua objects.

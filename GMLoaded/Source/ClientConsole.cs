@@ -1,4 +1,5 @@
-﻿using GMLoaded.Native;
+﻿using GMLoaded.Lua;
+using GMLoaded.Native;
 using System;
 using System.IO;
 using System.Text;
@@ -12,24 +13,19 @@ namespace GMLoaded.Source
     /// <remarks>It will not work if started by the server, and STD IO doesnt work if using hl2 host</remarks>
     public static class GModClientConsole
     {
-        private class IGameConsoleTextWriter : TextWriter
+        private static IGameConsoleTextWriter GameConsoleWriter;
+
+        public static Color Color
         {
-            public Color Color;
-            public IGameConsole GameConsole;
+            get => GameConsoleWriter == null ? new Color() : GameConsoleWriter.Color;
 
-            public IGameConsoleTextWriter(IGameConsole console) => this.GameConsole = console;
-
-            public override Encoding Encoding => throw new NotImplementedException();
-
-            public override void Write(Char value) =>
-                Tier0.ConColorMsg(ref this.Color, value.ToString(), null);
-
-            public override void Write(String value) => Tier0.ConColorMsg(ref this.Color, value, null);
-
-            public override void WriteLine(String value) => Tier0.ConColorMsg(ref this.Color, value + "\n", null);
+            set
+            {
+                if (GameConsoleWriter != null)
+                    GameConsoleWriter.Color = value;
+            }
         }
 
-        static IGameConsoleTextWriter GameConsoleWriter;
         public static IGameConsole RerouteConsole()
         {
             if (GameConsoleWriter == null)
@@ -46,15 +42,21 @@ namespace GMLoaded.Source
             return GameConsoleWriter.GameConsole;
         }
 
-        public static Color Color
+        private class IGameConsoleTextWriter : TextWriter
         {
-            get => GameConsoleWriter == null ? new Color() : GameConsoleWriter.Color;
+            public Color Color;
+            public IGameConsole GameConsole;
 
-            set
-            {
-                if (GameConsoleWriter != null)
-                    GameConsoleWriter.Color = value;
-            }
+            public IGameConsoleTextWriter(IGameConsole console) => this.GameConsole = console;
+
+            public override Encoding Encoding => throw new NotImplementedException();
+
+            public override void Write(Char value) =>
+                Tier0.ConColorMsg(ref this.Color, value.ToString(), null);
+
+            public override void Write(String value) => Tier0.ConColorMsg(ref this.Color, value, null);
+
+            public override void WriteLine(String value) => Tier0.ConColorMsg(ref this.Color, value + "\n", null);
         }
     }
 }

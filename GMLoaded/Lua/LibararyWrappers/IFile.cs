@@ -1,8 +1,10 @@
 using System.Runtime.InteropServices;
 using System;
 
-namespace GMLoaded.Lua
+namespace GMLoaded.Lua.LibraryWrappers
 {
+    // TODO Make an optimized version of this Library Loader
+
     /// <summary>
     /// The file library provides functions for finding, reading and writing to files. <br/>
     /// <list type='bullet'>
@@ -17,7 +19,7 @@ namespace GMLoaded.Lua
     /// </list>
     /// For the full list of path values, type “path” in the console.
     /// </summary>
-    public interface IFile
+    public interface LibFile
     {
         /// <summary>
         /// Appends a file relative to the ''data'' folder.

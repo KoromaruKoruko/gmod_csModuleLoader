@@ -5,10 +5,30 @@ namespace GMLoaded.Native
 {
     public static partial class Natives
     {
-        public static String Tier0Library { get; private set; }
-
         public static Boolean IsX64 { get; private set; }
+        public static String LibraryTier0Name { get; private set; }
         public static System SystemType { get; private set; }
+
+        public static void FreeDL(IntPtr DLHandle)
+        {
+            switch (SystemType)
+            {
+                case System.Linux:
+                    Libdl.DLclose(DLHandle);
+                    break;
+
+                case System.Windows:
+                    Kernel32.FreeLibrary(DLHandle);
+                    break;
+            }
+        }
+
+        public static IntPtr GetDLSymbol(IntPtr DLHandle, String Symbol) => SystemType switch
+        {
+            System.Linux => Libdl.DLsym(DLHandle, Symbol),
+            System.Windows => Kernel32.GetProcAddress(DLHandle, Symbol),
+            _ => IntPtr.Zero,
+        };
 
         public static void Init(Boolean IsX64, System SystemType)
         {
@@ -16,10 +36,10 @@ namespace GMLoaded.Native
             Natives.IsX64 = IsX64;
             Natives.SystemType = SystemType;
 
-            Tier0Library = Natives.SystemType switch
+            LibraryTier0Name = SystemType switch
             {
-                System.Linux => "libtier0.so",
                 System.Windows => "tier0.dll",
+                System.OSx => "libtier0.so",
                 _ => null,
             };
         }
@@ -41,25 +61,6 @@ namespace GMLoaded.Native
             }
             return Ret;
         }
-        public static void FreeDL(IntPtr DLHandle)
-        {
-            switch (SystemType)
-            {
-                case System.Linux:
-                    Libdl.DLclose(DLHandle);
-                    break;
-
-                case System.Windows:
-                    Kernel32.FreeLibrary(DLHandle);
-                    break;
-            }
-        }
-        public static IntPtr GetDLSymbol(IntPtr DLHandle, String Symbol) => SystemType switch
-        {
-            System.Linux => Libdl.DLsym(DLHandle, Symbol),
-            System.Windows => Kernel32.GetProcAddress(DLHandle, Symbol),
-            _ => IntPtr.Zero,
-        };
 
         /// <summary>
         /// General Native Windows API
@@ -96,6 +97,9 @@ namespace GMLoaded.Native
                 WRITECOMBINE_Modifierflag = 0x400
             }
 
+            [DllImport("kernel32")]
+            public static extern Boolean AllocConsole();
+
             /// <summary>
             /// Close/Unload an open dl
             /// </summary>
@@ -103,6 +107,12 @@ namespace GMLoaded.Native
             /// <returns>If the Library was Free'd</returns>
             [DllImport("kernel32.dll")]
             public static extern Boolean FreeLibrary(IntPtr DlPtr);
+
+            [DllImport("kernel32")]
+            public static extern IntPtr GetConsoleWindow();
+
+            [DllImport("kernel32", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+            public static extern IntPtr GetModuleHandle(String ModuleName);
 
             /// <summary>
             /// Get a Symbol
@@ -122,15 +132,6 @@ namespace GMLoaded.Native
             public static extern IntPtr LoadLibrary(String DllPath);
 
             [DllImport("kernel32")]
-            public static extern Boolean AllocConsole();
-
-            [DllImport("kernel32")]
-            public static extern IntPtr GetConsoleWindow();
-
-            [DllImport("kernel32", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-            public static extern IntPtr GetModuleHandle(String ModuleName);
-
-            [DllImport("kernel32")]
             public static extern IntPtr RtlPcToFileHeader(IntPtr PC, out IntPtr Base);
 
             [DllImport("kernel32", SetLastError = true)]
@@ -140,16 +141,62 @@ namespace GMLoaded.Native
             [DllImport("kernel32", SetLastError = true)]
             public static extern Boolean VirtualFree(IntPtr Addr, IntPtr Size, AllocationType FreeType);
 
+            public static Boolean VirtualFree(IntPtr Addr) => VirtualFree(Addr, IntPtr.Zero, AllocationType.RELEASE);
+
             [DllImport("kernel32", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
             public static extern Boolean VirtualProtect(IntPtr Addr, UInt32 Size, MemoryProtection NewProtect, out MemoryProtection OldProtect);
-
-            public static Boolean VirtualFree(IntPtr Addr) => VirtualFree(Addr, IntPtr.Zero, AllocationType.RELEASE);
 
             public static Boolean VirtualProtect(IntPtr Addr, Int32 Size, MemoryProtection NewProtect, out MemoryProtection OldProtect) => VirtualProtect(Addr, (UInt32)Size, NewProtect, out OldProtect);
 
             public static Boolean VirtualProtect(IntPtr Addr, UInt32 Size, MemoryProtection NewProtect) => VirtualProtect(Addr, Size, NewProtect, out MemoryProtection Old);
 
             public static Boolean VirtualProtect(IntPtr Addr, Int32 Size, MemoryProtection NewProtect) => VirtualProtect(Addr, (UInt32)Size, NewProtect);
+        }
+
+        /// <summary>
+        /// Linux GNU C++ Stdandard Library
+        /// </summary>
+        public static class Libc
+        {
+            [Flags]
+            public enum Madvflags
+            {
+                MADV_NORMAL = 0,
+                MADV_RANDOM = 1,
+                MADV_SEQUENTIAL = 2,
+                MADV_WILLNEED = 3,
+                MADV_DONTNEED = 4,
+            }
+
+            [Flags]
+            public enum Mapflags
+            {
+                MAP_FILE = 0x0001,
+                MAP_ANON = 0x0002,
+                MAP_TYPE = 0x000f,
+                MAP_COPY = 0x0020,
+                MAP_SHARED = 0x0010,
+                MAP_PRIVATE = 0x0000,
+                MAP_FIXED = 0x0100,
+                MAP_NOEXTENDED = 0x0200,
+                MAP_HASSEMPHORE = 0x0400,
+                MAP_INHERIT = 0x0800,
+            }
+
+            [Flags]
+            public enum Protflags : Int32
+            {
+                PROT_READ = 0x04,
+                PROT_WRITE = 0x02,
+                PROT_EXEC = 0x01,
+                PROT_NONE = 0x00,
+            }
+
+            [DllImport("libc.so", EntryPoint = "mprotect")]
+            public static extern Int32 MProtect(IntPtr StartAddress, Int32 Length, Protflags falgs);
+
+            [DllImport("libc.so", EntryPoint = "pkey_mprotect")]
+            public static extern Int32 PKey_MProtect(IntPtr StartAddress, Int32 Length, Protflags falgs, Int32 PKey);
         }
 
         /// <summary>
@@ -234,49 +281,6 @@ namespace GMLoaded.Native
             /// <returns>Pointer to item or NULL</returns>
             [DllImport("libdl", EntryPoint = "dlsym")]
             public static extern IntPtr DLsym(IntPtr DlPtr, String Symbol);
-        }
-
-        /// <summary>
-        /// Linux GNU C++ Stdandard Library
-        /// </summary>
-        public static class Libc
-        {
-            [Flags]
-            public enum Protflags : Int32
-            {
-                PROT_READ = 0x04,
-                PROT_WRITE = 0x02,
-                PROT_EXEC = 0x01,
-                PROT_NONE = 0x00,
-            }
-            [Flags]
-            public enum Mapflags
-            {
-                MAP_FILE = 0x0001,
-                MAP_ANON = 0x0002,
-                MAP_TYPE = 0x000f,
-                MAP_COPY = 0x0020,
-                MAP_SHARED = 0x0010,
-                MAP_PRIVATE = 0x0000,
-                MAP_FIXED = 0x0100,
-                MAP_NOEXTENDED = 0x0200,
-                MAP_HASSEMPHORE = 0x0400,
-                MAP_INHERIT = 0x0800,
-            }
-            [Flags]
-            public enum Madvflags
-            {
-                MADV_NORMAL = 0,
-                MADV_RANDOM = 1,
-                MADV_SEQUENTIAL = 2,
-                MADV_WILLNEED = 3,
-                MADV_DONTNEED = 4,
-            }
-
-            [DllImport("libc.so", EntryPoint = "mprotect")]
-            public static extern Int32 MProtect(IntPtr StartAddress, Int32 Length, Protflags falgs);
-            [DllImport("libc.so", EntryPoint = "pkey_mprotect")]
-            public static extern Int32 PKey_MProtect(IntPtr StartAddress, Int32 Length, Protflags falgs, Int32 PKey);
         }
     }
 }

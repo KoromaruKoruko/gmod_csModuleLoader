@@ -1,11 +1,13 @@
 using System.Runtime.InteropServices;
 using System;
-namespace GMLoaded.Lua
+namespace GMLoaded.Lua.LibraryWrappers
 {
+    // TODO Make an optimized version of this Library Loader
+
     /// <summary>
     /// The math library is a standard Lua library that provides functions for manipulating numbers. In Garry's Mod several additional math functions have been added.
     /// </summary>
-    public interface IMath
+    public interface LibMath
     {
         /// <summary>
         /// Calculates the absolute value of a number (effectively removes any negative sign).

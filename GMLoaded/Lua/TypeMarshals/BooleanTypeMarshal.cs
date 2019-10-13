@@ -12,5 +12,13 @@ namespace GMLoaded.Lua.TypeMarshals
                 GLua.LuaBase.PushBool(val);
             }
         }
+
+        private BooleanTypeMarshal() { }
+        private static BooleanTypeMarshal Instance;
+        public static BooleanTypeMarshal Create()
+        {
+            Instance = Instance ?? new BooleanTypeMarshal();
+            return Instance;
+        }
     }
 }

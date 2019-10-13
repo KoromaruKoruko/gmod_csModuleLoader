@@ -27,12 +27,20 @@ namespace GMLoaded.Lua.TypeMarshals
                     }
                     return 0;
                 }
-#pragma warning disable IDE0009 // Member access should be qualified. unknown issue, with space check, will post issue on forums
+#pragma warning disable IDE0009 // Member access should be qualified. will post issue on forums
                 GLua.PushCFunction(cfunc);
 #pragma warning restore IDE0009
             }
             else
                 throw new Exception("wrapper func must be castable to delegate");
+        }
+
+        private DelegateTypeMarshal() { }
+        private static DelegateTypeMarshal Instance;
+        public static DelegateTypeMarshal Create()
+        {
+            Instance = Instance ?? new DelegateTypeMarshal();
+            return Instance;
         }
     }
 }
