@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class Panel : ITableBase
+    public class Panel : Table
     {
         public Panel(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)
         {

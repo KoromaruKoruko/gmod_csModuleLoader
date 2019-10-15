@@ -3,7 +3,7 @@ using GMLoaded.Lua.TypeMarshals;
 
 namespace GMLoaded.Lua
 {
-    public class ISave : ITableBase
+    public class ISave : Table
     {
         public ISave(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)
         {

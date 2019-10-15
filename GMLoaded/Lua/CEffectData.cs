@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class CEffectData : ITableBase
+    public class CEffectData : Table
     {
         public CEffectData(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)
         {

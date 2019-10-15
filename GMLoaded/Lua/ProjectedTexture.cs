@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class ProjectedTexture : ITableBase
+    public class ProjectedTexture : Table
     {
         public ProjectedTexture(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

@@ -8,11 +8,11 @@
 //		osx		64 bit
 //  linux 32bit & osx 32bit are unsupported
 
-#define LoaderFriendlyName			"cpploader"								// The domain Friendly name, should be different if loading multiple modules from
-#define Module_ASMFilename			"ModuleExample"							// the files name of your assembly (do not include the file extension)
-#define Module_Namespace_Class		"ModuleExample.ModuleExportInterface"	// FullName of the Loader path
-#define Module_Path					"csModules/"							// where the c# Module folder is relative to hl2.exe or srcds_run
-#define ClrTreePath					"csModules/dnc/"						// where the CoreClr is (Relative to your loading program)
+#define LoaderFriendlyName			"cpploader"						// The domain Friendly name, should be different if loading multiple modules from
+#define Module_ASMFilename			"ExampleModule"						// the files name of your assembly (do not include the file extension)
+#define Module_Namespace_Class		"ExampleModule.ModuleExportInterface"	// FullName of the Loader path
+#define Module_Path					"csModules/"					// where the c# Module folder is relative to hl2.exe or srcds_run
+#define ClrTreePath					"csModules/dnc/"							// where the CoreClr is (Relative to your loading program)
 
 // these are the paths to the CoreCLR Runtime files (edit if you use a different structure)
 #define WinClr ClrTreePath "win"
@@ -169,6 +169,11 @@ CORECLR_HOSTING_API(coreclr_create_delegate,
 	const char* entryPointTypeName,
 	const char* entryPointMethodName,
 	void** delegate);
+
+CORECLR_HOSTING_API(coreclr_shutdown,
+	void* hostHandle,
+	unsigned int domainId);
+
 #undef CORECLR_HOSTING_API
 
 #pragma endregion
@@ -177,15 +182,15 @@ typedef int (*d_Define)(bool IsX64, unsigned char SystemID);
 typedef int (*d_Open)(csptr L);
 typedef int (*d_Close)(csptr L);
 
-d_Open Invoke_Open = NULL;
-d_Close Invoke_Close = NULL;
+static d_Open Invoke_Open = NULL;
+static d_Close Invoke_Close = NULL;
 
-LibPtr _coreCLR = NULL;
-void* _hostHandle;
-unsigned int _domainId;
-coreclr_create_delegate_ptr CreateDelegate = NULL;
-coreclr_initialize_ptr initfptr = NULL;
-
+static LibPtr _coreCLR = NULL;
+static void* _hostHandle;
+static unsigned int _domainId;
+static coreclr_create_delegate_ptr CreateDelegate = NULL;
+static coreclr_initialize_ptr initfptr = NULL;
+static coreclr_shutdown_ptr shutdownptr = NULL;
 void LoadDelegates()
 {
 	CreateDelegate(_hostHandle, _domainId,
@@ -224,12 +229,16 @@ int LoadModule(lua_State* L)
 		initfptr = (coreclr_initialize_ptr)GetInterface(_coreCLR, "coreclr_initialize");
 		if (initfptr == NULL)
 		{
-			L->luabase->GetField(-10002, "print");
-			L->luabase->PushString("failed to generate init delegate ptr");
-			L->luabase->Call(1, 0);
+			if (L != NULL)
+			{
+				L->luabase->GetField(-10002, "print");
+				L->luabase->PushString("failed to generate init delegate ptr");
+				L->luabase->Call(1, 0);
+			}
 			perror("failed to generate init delegate ptr");
 			return -1;
 		}
+
 		std::string TpaList; // Add Trusted Assemblies by Path searching
 		{
 			BuildTpaList(CoreClrPath, ".dll", TpaList);
@@ -263,23 +272,30 @@ int LoadModule(lua_State* L)
 			&_domainId)                             // AppDomain ID (out)
 			!= 0)
 		{
-			L->luabase->GetField(-10002, "print");
-			L->luabase->PushString("Failed to create runtime enviroment");
-			L->luabase->Call(1, 0);
+			if (L != NULL)
+			{
+				L->luabase->GetField(-10002, "print");
+				L->luabase->PushString("Failed to create runtime enviroment");
+				L->luabase->Call(1, 0);
+			}
 			perror("Failed to create runtime enviroment");
 			return -1;
 		}
 
 		CreateDelegate = (coreclr_create_delegate_ptr)GetInterface(_coreCLR, "coreclr_create_delegate");
-
+		shutdownptr = (coreclr_shutdown_ptr)GetInterface(_coreCLR, "coreclr_shutdown");
 		if (CreateDelegate == NULL)
 		{
-			L->luabase->GetField(-10002, "print");
-			L->luabase->PushString("Failed to Get CreateDelegate Delegate Pointer");
-			L->luabase->Call(1, 0);
+			if (L != NULL)
+			{
+				L->luabase->GetField(-10002, "print");
+				L->luabase->PushString("Failed to Get CreateDelegate Delegate Pointer");
+				L->luabase->Call(1, 0);
+			}
 			perror("Failed to Get CreateDelegate Delegate Pointer");
 			return -1;
 		}
+
 		// we dont need a 32 and 64 bit version of this, because it works with single bits only
 		d_Define Define;
 		CreateDelegate(_hostHandle, _domainId,
@@ -296,7 +312,7 @@ int LoadModule(lua_State* L)
 		LoadDelegates();
 	}
 	return 0;
-		}
+}
 
 DLL_EXPORT int gmod13_open(lua_State* L)
 {
@@ -312,4 +328,6 @@ DLL_EXPORT int gmod13_close(lua_State* L)
 		return Invoke_Close((csptr)L);
 	else
 		return -1;
+
+	shutdownptr(_hostHandle, _domainId); // should work
 }

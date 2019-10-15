@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class CLuaParticle : ITableBase
+    public class CLuaParticle : Table
     {
         public CLuaParticle(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

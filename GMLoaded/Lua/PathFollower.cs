@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class PathFollower : ITableBase
+    public class PathFollower : Table
     {
         public PathFollower(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class CMoveData : ITableBase
+    public class CMoveData : Table
     {
         public CMoveData(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)
         { }

@@ -10,7 +10,7 @@ namespace GMLoaded.Lua
         public Double TraceFraction;
     }
 
-    public class PhysCollide : ITableBase
+    public class PhysCollide : Table
     {
         public PhysCollide(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         { }

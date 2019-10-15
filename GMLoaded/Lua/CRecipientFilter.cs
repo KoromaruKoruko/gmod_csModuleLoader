@@ -3,7 +3,7 @@ using GMLoaded.Lua.TypeMarshals;
 
 namespace GMLoaded.Lua
 {
-    public class CRecipientFilter : ITableBase
+    public class CRecipientFilter : Table
     {
         public CRecipientFilter(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)
         {

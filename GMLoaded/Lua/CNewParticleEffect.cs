@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class CNewParticleEffect : ITableBase
+    public class CNewParticleEffect : Table
     {
         public CNewParticleEffect(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

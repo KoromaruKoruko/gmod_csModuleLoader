@@ -92,13 +92,13 @@ namespace GMLoaded.Lua.LibraryWrappers
             return Ret;
         }
 
-        public ITableBase GetTable()
+        public Table GetTable()
         {
             Boolean B = this.LuaHandle.Lock();
 
             this.LuaHandle.ReferencePush(this.Hook_GetTable);
             this.LuaHandle.Call(0, 1);
-            ITableBase Table = new ITableBase(this.LuaHandle, -1);
+            Table Table = new Table(this.LuaHandle, -1);
             this.LuaHandle.Pop();
 
             if (B)

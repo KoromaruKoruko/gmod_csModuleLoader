@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class CSoundPatch : ITableBase
+    public class CSoundPatch : Table
     {
         public CSoundPatch(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

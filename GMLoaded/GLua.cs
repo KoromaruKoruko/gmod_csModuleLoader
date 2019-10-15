@@ -66,7 +66,7 @@ namespace GMLoaded
                     break;
 
                 case 5:
-                    Ret = this.Get<ITableBase>(IStackPos);
+                    Ret = this.Get<Table>(IStackPos);
                     break;
 
                 case 6:
@@ -74,7 +74,7 @@ namespace GMLoaded
                     break;
 
                 case 8: // Thread
-                    Ret = this.Get<ITableBase>(IStackPos);
+                    Ret = this.Get<Table>(IStackPos);
                     break;
 
                 case 9:
@@ -345,7 +345,7 @@ namespace GMLoaded
             RegisterMarshal(typeof(Vector), VectorTypeMarshal.Create());
             RegisterMarshal(typeof(Angle), AngleTypeMarshal.Create());
 
-            RegisterMarshal(typeof(ITableBase), TableTypeMarshal.Create());
+            RegisterMarshal(typeof(Table), TableTypeMarshal.Create());
             RegisterMarshal(typeof(PhysCollide), GenericTableTypeMarshal.Create<PhysCollide>());
             RegisterMarshal(typeof(Entity), GenericTableTypeMarshal.Create<Entity>());
             RegisterMarshal(typeof(PhysObj), GenericTableTypeMarshal.Create<PhysObj>());

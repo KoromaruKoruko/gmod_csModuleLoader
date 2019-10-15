@@ -21,11 +21,11 @@ namespace GMLoaded.Lua.TypeMarshals
         /// <summary>
         /// Create an Optimized GenericTableMarshal(ILGeneration) or return a pre-existing one
         /// </summary>
-        public static IGenericTableTypeMarshal<T> Create<T>() where T : ITableBase
+        public static IGenericTableTypeMarshal<T> Create<T>() where T : Table
         {
             Type ReturnType = typeof(T);
 
-            if (ReturnType == typeof(ITableBase))
+            if (ReturnType == typeof(Table))
                 throw new InvalidOperationException("Use the ITableBaseTypeMarshal!");
 
             if (Marshals.ContainsKey(ReturnType))
@@ -39,7 +39,7 @@ namespace GMLoaded.Lua.TypeMarshals
                 ConstructorInfo ReturnType_Constructor = ReturnType.GetConstructor(new Type[] { GluaType, Int32Type });
 
                 if (ReturnType_Constructor == null)
-                    throw new ArgumentException("Generic Type does not contain valid ITableBase Constructor  new T(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)", "Generic<T>");
+                    throw new ArgumentException("Generic Type does not contain valid Table Constructor  new T(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)", "Generic<T>");
 
                 if (moduleBuilder == null)
                 {
@@ -90,7 +90,7 @@ namespace GMLoaded.Lua.TypeMarshals
                 }
 
                 ConstructorInfo InvalidOperationExceptionType_Constructor = typeof(InvalidOperationException).GetConstructor(new[] { typeof(String) });
-                Type ReturnTypeBase = typeof(ITableBase);
+                Type ReturnTypeBase = typeof(Table);
                 MethodInfo ReturnTypeBase_GetLuaHandle = ReturnTypeBase.GetProperty("LuaHandle").GetMethod;
                 MethodInfo ReturnTypeBase_GetReferance = ReturnTypeBase.GetProperty("Referance").GetMethod;
                 MethodInfo GLua_ReferancePush = GluaType.GetMethod("ReferencePush", new[] { Int32Type });

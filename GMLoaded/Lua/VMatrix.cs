@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class VMatrix : ITableBase
+    public class VMatrix : Table
     {
         public VMatrix(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class CTakeDamageInfo : ITableBase
+    public class CTakeDamageInfo : Table
     {
         public CTakeDamageInfo(GLua Glua, Int32 IStackPos) : base(Glua, IStackPos)
         { }

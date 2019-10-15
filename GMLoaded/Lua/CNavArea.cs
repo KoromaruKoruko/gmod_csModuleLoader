@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class CNavArea : ITableBase
+    public class CNavArea : Table
     {
         public CNavArea(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

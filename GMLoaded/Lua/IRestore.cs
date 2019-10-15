@@ -3,7 +3,7 @@ using GMLoaded.Lua.TypeMarshals;
 
 namespace GMLoaded.Lua
 {
-    public class IRestore : ITableBase
+    public class IRestore : Table
     {
         public IRestore(GLua GLua, Int32 IStackPos) : base(GLua, IStackPos)
         {

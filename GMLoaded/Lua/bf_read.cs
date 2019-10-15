@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class bf_read : ITableBase
+    public class bf_read : Table
     {
         public bf_read(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

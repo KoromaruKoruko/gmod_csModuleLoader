@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class IGModAudioChannel : ITableBase
+    public class IGModAudioChannel : Table
     {
         public IGModAudioChannel(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

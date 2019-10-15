@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class IVideoWriter : ITableBase
+    public class IVideoWriter : Table
     {
         public IVideoWriter(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {

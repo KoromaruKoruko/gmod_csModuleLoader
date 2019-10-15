@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using GMLoaded.Native;
 using GMLoaded;
@@ -76,7 +76,7 @@ namespace ModuleExample
             }
         }
 
-        public static void Write(String Text) => global::System.IO.File.AppendAllText("csModuleErrLog.Log", $"\n{DateTime.Now.ToString()}\n{Text}\n");
+        public static void Write(String Text) => System.IO.File.AppendAllText("csModuleErrLog.Log", $"\n{DateTime.Now.ToString()}\n{Text}\n");
 
         public static void WriteException(Exception E)
         {

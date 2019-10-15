@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GMLoaded.Lua
 {
-    public class CLuaLocomotion : ITableBase
+    public class CLuaLocomotion : Table
     {
         public CLuaLocomotion(GLua LuaHandle, Int32 IStackPos) : base(LuaHandle, IStackPos)
         {
