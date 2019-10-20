@@ -28,9 +28,9 @@ now create a folder to house the dotnet core runtime files and your module.
         win32/
           * 32 bit windows runtime files
         lin64/
-          * 64 bit windows runtime files
+          * 64 bit linux runtime files
         lin32/
-          * 32 bit windows runtime files (when they come out)
+          * 32 bit linux runtime files (when they come out)
         osx64/
           * 64 bit Mac OSx runtime files (when it gets implemented)
         osx32/
